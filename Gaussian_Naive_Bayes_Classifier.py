@@ -1,19 +1,9 @@
-
-# coding: utf-8
-
-# In[5]:
-
-
 import os 
 import pandas as pd
 import numpy as np
 import math
 import sklearn
 from sklearn import metrics
-
-
-# In[7]:
-
 
 #read in data with column names labeled to make sense of what I'm seeing 
 f_pd = pd.read_csv('/Users/kevinstoltz/Desktop/spambase.data',
@@ -78,9 +68,6 @@ f_pd = pd.read_csv('/Users/kevinstoltz/Desktop/spambase.data',
 f_pd
 
 
-# In[8]:
-
-
 #set up a variable called random that will allow me to randomly sample from data
 #the < 0.5 changes this to a boolean expression where any of the random numbers just generated that are < 0.5 return TRUE
 random = np.random.rand(len(f_pd)) < 0.5
@@ -98,16 +85,6 @@ test = np.array(test)
 #dims check on training and test set
 print("train shape:", train.shape)
 print("test shape:", test.shape)
-
-
-# In[9]:
-
-
-random
-
-
-# In[4]:
-
 
 #print some relavent info about the training and test sets 
 train_no_spam = np.sum(train[:,57])
@@ -127,25 +104,13 @@ print("test fraction of spam = ", test_fract_spam)
 print("train_fract_not_spam =", train_fract_not_spam)
 print("test_fract_not_spam = ", test_fract_not_spam)
 
-
-# In[5]:
-
-
 #create labels from test set for model evaluation
 labels = test[:,57]
 len(labels)
 
-
-# In[6]:
-
-
 #remove labels form the test set 
 test = test[:, 0:57]
 test.shape
-
-
-# In[7]:
-
 
 #split training set into examples that contain spam and examples that don't contain spam 
 train_spam = train[np.where(train[:,57] == 1)]
@@ -153,10 +118,6 @@ train_not_spam = train[np.where(train[:,57] == 0)]
 
 print("train_spam shape = ",train_spam.shape)
 print("train_not_spam shape = ",train_not_spam.shape)
-
-
-# In[8]:
-
 
 #compute mean and stdev given spam
 train_spam_mean = np.mean(train_spam, axis=0)
@@ -180,9 +141,6 @@ print("train_spam_mean shape = ", train_spam_mean.shape)
 print("train_spam_stdev shape = ", train_spam_stdev.shape)
 
 
-# In[9]:
-
-
 #mean and stdev given not spam (this section same as above, just with not spam class)
 train_not_spam_mean = np.mean(train_not_spam, axis=0)
 train_not_spam_stdev = np.std(train_not_spam, axis=0)
@@ -200,15 +158,11 @@ train_not_spam_stdev = np.reshape(train_not_spam_stdev, (1, 57))
 print("train_not_spam_mean shape = ", train_spam_mean.shape)
 print("train_not_spam_stdev shape = ", train_spam_stdev.shape)
 
-
-# In[10]:
-
-
 #compute conditional probabilities for test set given spam and not spam  
 
 #spam class
 
-#vectorized implementation of the Gaussian function in parts 
+#Gaussian function in parts 
 #(x-mu)^2
 xMinusMuSqr_spam = (test - train_spam_mean)**2
 #2(sigma^2)
@@ -222,7 +176,6 @@ full_gauss_spam = gauss_1_spam*gauss_2_spam
 
 #predictions for spam class 
 pred_spam = np.log(train_fract_spam)+np.sum(np.log(full_gauss_spam), axis=1)
-
 
 #not spam class
 xMinusMuSqr_not_spam = (test - train_not_spam_mean)**2
@@ -243,23 +196,11 @@ pred_not_spam = pred_not_spam.reshape(len(labels),1)
 print('pred_spam shape = ', pred_spam.shape)
 print('pred_not_spam shape = ', pred_not_spam.shape)
 
-
-# In[11]:
-
-
 #concatenating the two prediction vectors
 pred = np.concatenate((pred_not_spam,pred_spam), axis =1)
 
-
-# In[12]:
-
-
 #taking argmax to determine class output 
 pred = np.argmax(pred, axis=1)
-
-
-# In[13]:
-
 
 #confusion matrix 
 conf = sklearn.metrics.confusion_matrix(labels, pred)
@@ -274,10 +215,6 @@ print("accuracy = ", acc)
 print("precision = ", prec)
 print("recall = ", recall)
 
-
-# In[14]:
-
-
 #checking my math with scikit learn
 print("sk accuracy = ", sklearn.metrics.accuracy_score(labels, pred))
 print("sk precision = ", sklearn.metrics.precision_score(labels, pred))
@@ -285,31 +222,14 @@ print("sk recall = ", sklearn.metrics.recall_score(labels, pred))
 
 
 # I was curious as to how the linearity assumption might have affected my naive bayes results so I set up an MLP to classify the spam data set. 
-
-# In[15]:
-
-
 train_labels = train[:,57]
-
-
-# In[16]:
-
-
 train = train[:,0:57]
 train.shape
-
-
-# In[17]:
-
 
 import keras 
 from keras.models import Sequential
 from keras.layers import Dense, Activation 
 from keras.optimizers import SGD
-
-
-# In[18]:
-
 
 model = Sequential()
 
@@ -321,22 +241,10 @@ model.compile(loss="mse", optimizer="rmsprop", metrics=["accuracy"])
           
 model.fit(train, train_labels, epochs = 10, batch_size = 3)
 
-
-# In[19]:
-
-
 keras_pred = model.predict(test)
 keras_pred = np.where(keras_pred > 0.5, 1, 0)
 
-
-# In[20]:
-
-
 labels = labels.astype(int)
-
-
-# In[21]:
-
 
 conf_keras = sklearn.metrics.confusion_matrix(labels, keras_pred)
 print(conf_keras)
