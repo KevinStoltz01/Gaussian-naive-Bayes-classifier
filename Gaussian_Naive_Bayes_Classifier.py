@@ -6,7 +6,7 @@ import sklearn
 from sklearn import metrics
 
 #read in data with column names labeled to make sense of what I'm seeing 
-f_pd = pd.read_csv('/Users/kevinstoltz/Desktop/spambase.data',
+f_pd = pd.read_csv('/../../spambase.data',
                names = ['word_freq_make',
                'word_freq_address',
                'word_freq_all',
